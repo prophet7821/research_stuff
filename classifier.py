@@ -141,7 +141,7 @@ class GPT4JudgeASR(ClassifierBase):
             temperature: float = 0
     ):
         """Initialize GPT-4 based judge following paper methodology"""
-        os.environ["OPENAI_API_KEY"] = "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"
+        os.environ["OPENAI_API_KEY"] = ""
         self.judge_model = judge_model
         self.max_tokens = max_tokens
         self.temperature = temperature
