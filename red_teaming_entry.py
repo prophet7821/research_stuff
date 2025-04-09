@@ -79,6 +79,13 @@ def read_prompts_from_file(file_path):
 def save_result_incrementally(result, save_path):
     """Save results to CSV as they're generated"""
     saved_paths.add(save_path)
+    
+    # Create directory if it doesn't exist
+    directory = os.path.dirname(save_path)
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+        print(f"Created directory: {directory}")
+    
     file_exists = os.path.exists(save_path)
 
     with open(save_path, 'a', newline='', encoding='utf-8') as file:

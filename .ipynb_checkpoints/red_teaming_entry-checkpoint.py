@@ -2,29 +2,26 @@ import argparse
 import csv
 import time
 import os
-import sys
 import base64
-from dotenv import load_dotenv
 
 # Import local modules
-from agent import base_agent, nondiverse_debate_agent, diverse_debate_agent
+from agent import BaseAgent
 from classifier import GCGClassifier, GPT4JudgeASR
 
 # Constants and configurations
 MODEL_PATHS = {
-    'llama': 'meta-llama/Llama-3.1-8B-Instruct',
-    'gemma': 'google/gemma-2-9b-it',
+    'llama': 'meta-llama/Llama-3.2-1B-Instruct',
+    'gemma': 'google/gemma-3-1b-it',
     'mistral': 'mistralai/Ministral-8B-Instruct-2410',
+    'deepseek' : 'deepseek-ai/DeepSeek-V2.5',
+    'microsoft' : 'microsoft/Phi-4-mini-instruct'
 }
 
 # Map settings to models
 SETTING_TO_MODEL = {
-    1: 'llama', 2: 'gemma', 3: 'mistral',
-    4: 'llama', 5: 'gemma', 6: 'mistral',
+    1: 'llama', 2: 'gemma', 3: 'mistral', 4: 'deepseek', 5: 'microsoft',
+    6: 'llama', 7: 'gemma', 8: 'mistral', 9: 'deepseek', 10: 'microsoft',
 }
-
-# Initialize environment variables
-load_dotenv()
 
 # Track saved result files
 saved_paths = set()
@@ -38,17 +35,20 @@ def parse_args():
         description='Interface for red teaming experiments')
 
     parser.add_argument('-s', '--setting', type=int, required=True, help='''
-        1 = zero-shot,  Llama-3.1-8B-Instruct
-        2 = zero-shot,  gemma-2-9b-it
+        1 = zero-shot,  Llama-3.2-1B-Instruct
+        2 = zero-shot,  gemma-3-1b-it
         3 = zero-shot,  Ministral-8B-Instruct
-        4 = nondiverse, Llama-3.1-8B-Instruct
-        5 = nondiverse, gemma-2-9b-it
-        6 = nondiverse, Ministral-8B-Instruct
-        7 = diverse,    Ministral-8B-Instruct / Llama-3.1-8B
-        8 = diverse,    Ministral-8B-Instruct / gemma-2-9b-Instruct
+        4 = zero-shot,  DeepSeek-V2.5
+        5 = zero-shot,  Phi-4-mini-instruct
+        6 = nondiverse, Llama-3.2-1B-Instruct
+        7 = nondiverse, gemma-3-1b-it
+        8 = nondiverse, Ministral-8B-Instruct
+        9 = nondiverse, DeepSeek-V2.5
+        10 = nondiverse, Phi-4-mini-instruct
+        11 = diverse,    Ministral-8B-Instruct / gemma-3-1b-it
     ''')
     parser.add_argument('--input_path', type=str, required=False,
-                        default='./data/red_teams_100_sampled.txt',
+                        default='./data/red_teams_small.txt',
                         help='Path to red teaming prompts file')
     parser.add_argument('-a', '--n_agents', type=int, required=False,
                         help='Count of agents to use for nondiverse debate')
@@ -63,10 +63,10 @@ def parse_args():
     arg = parser.parse_args()
 
     # Validation logic
-    if arg.setting in [4, 5, 6] and (arg.n_agents is None or arg.n_rounds is None):
-        parser.error('Please specify number of agents and rounds')
-    if arg.setting in [7, 8] and arg.n_rounds is None:
-        parser.error('Please specify number of rounds')
+    # if arg.setting in [4, 5, 6] and (arg.n_agents is None or arg.n_rounds is None):
+    #     parser.error('Please specify number of agents and rounds')
+    # if arg.setting in [7, 8] and arg.n_rounds is None:
+    #     parser.error('Please specify number of rounds')
 
     return arg
 
@@ -79,6 +79,13 @@ def read_prompts_from_file(file_path):
 def save_result_incrementally(result, save_path):
     """Save results to CSV as they're generated"""
     saved_paths.add(save_path)
+    
+    # Create directory if it doesn't exist
+    directory = os.path.dirname(save_path)
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
+        print(f"Created directory: {directory}")
+    
     file_exists = os.path.exists(save_path)
 
     with open(save_path, 'a', newline='', encoding='utf-8') as file:
@@ -151,39 +158,39 @@ def main():
     timestamp = time.time()
 
     # Handle different settings
-    if args.setting in [1, 2, 3]:  # Zero-shot
+    if args.setting in [1, 2, 3, 4, 5]:  # Zero-shot
         model_key = SETTING_TO_MODEL[args.setting]
         model_path = MODEL_PATHS[model_key]
-        save_path = f'./responses/zs_{model_key}_{timestamp}.csv'
+        save_path = f'./response/zs_{model_key}_{timestamp}.csv'
 
-        model = base_agent(model_path)
+        model = BaseAgent(model_path)
         evaluate_model(model, file_path, save_path, is_debate=False)
 
-    elif args.setting in [4, 5, 6]:  # Non-diverse debate
-        model_key = SETTING_TO_MODEL[args.setting]
-        model_path = MODEL_PATHS[model_key]
-        save_path = f'./responses/nd_{model_key}_{timestamp}'
-
-        model = nondiverse_debate_agent(
-            model_path,
-            n_agents=args.n_agents,
-            n_discussion_rounds=args.n_rounds
-        )
-        evaluate_model(model, file_path, save_path, is_debate=True)
-
-    else:  # Diverse debate (7-8)
-        pair_info = {
-            7: ('mistral', 'llama'),
-            8: ('mistral', 'gemma')
-        }
-        model1_key, model2_key = pair_info[args.setting]
-        save_path = f'./responses/dd_{model1_key}_{model2_key}_{timestamp}'
-
-        model = diverse_debate_agent([
-            base_agent(MODEL_PATHS[model1_key], device="cuda:0"),
-            base_agent(MODEL_PATHS[model2_key], device="cuda:1")
-        ])
-        evaluate_model(model, file_path, save_path, is_debate=True)
+    # elif args.setting in [4, 5, 6]:  # Non-diverse debate
+    #     model_key = SETTING_TO_MODEL[args.setting]
+    #     model_path = MODEL_PATHS[model_key]
+    #     save_path = f'./responses/nd_{model_key}_{timestamp}'
+    #
+    #     model = nondiverse_debate_agent(
+    #         model_path,
+    #         n_agents=args.n_agents,
+    #         n_discussion_rounds=args.n_rounds
+    #     )
+    #     evaluate_model(model, file_path, save_path, is_debate=True)
+    #
+    # else:  # Diverse debate (7-8)
+    #     pair_info = {
+    #         7: ('mistral', 'llama'),
+    #         8: ('mistral', 'gemma')
+    #     }
+    #     model1_key, model2_key = pair_info[args.setting]
+    #     save_path = f'./responses/dd_{model1_key}_{model2_key}_{timestamp}'
+    #
+    #     model = diverse_debate_agent([
+    #         base_agent(MODEL_PATHS[model1_key], device="cuda:0"),
+    #         base_agent(MODEL_PATHS[model2_key], device="cuda:1")
+    #     ])
+    #     evaluate_model(model, file_path, save_path, is_debate=True)
 
     # Clean up model to free memory
     del model
