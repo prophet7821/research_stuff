@@ -1,6 +1,4 @@
-import os
 import json
-import torch
 from abc import ABC, abstractmethod
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from utils import generate_response_llama
