@@ -48,7 +48,7 @@ def parse_args():
         11 = diverse,    Ministral-8B-Instruct / gemma-3-1b-it
     ''')
     parser.add_argument('--input_path', type=str, required=False,
-                        default='./data/red_teams_small.txt',
+                        default='./data/red_teams_smaller.txt',
                         help='Path to red teaming prompts file')
     parser.add_argument('-a', '--n_agents', type=int, required=False,
                         help='Count of agents to use for nondiverse debate')
@@ -98,11 +98,10 @@ def create_result_dict(prompt_id, prompt, response):
     """Create standardized result dictionary with placeholders for evaluation"""
     return {
         'prompt_id': prompt_id,
-        'prompt': base64.b64encode(prompt.encode()).decode('utf-8'),
+        'prompt': prompt.strip(),
         'response': response.strip(),
         'gcg_score': 0,       # Placeholder for GCG classifier score
         'gpt4judgeasr': 0,    # Placeholder for GPT-4 judgement score
-        'toxicity_score': 0,  # Placeholder for toxicity score
     }
 
 # ===== Core Red Teaming Functions =====
@@ -155,13 +154,13 @@ def main():
     # Parse arguments
     args = parse_args()
     file_path = args.input_path
-    timestamp = time.time()
+    # timestamp = time.time()
 
     # Handle different settings
     if args.setting in [1, 2, 3, 4, 5]:  # Zero-shot
         model_key = SETTING_TO_MODEL[args.setting]
         model_path = MODEL_PATHS[model_key]
-        save_path = f'./response/zs_{model_key}_{timestamp}.csv'
+        save_path = f'./response/red_team/{args.setting}/zs_{model_key}.csv'
 
         model = BaseAgent(model_path)
         evaluate_model(model, file_path, save_path, is_debate=False)
