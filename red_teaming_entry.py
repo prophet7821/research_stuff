@@ -11,7 +11,7 @@ from classifier import GCGClassifier, GPT4JudgeASR
 # Constants and configurations
 MODEL_PATHS = {
     'llama': 'meta-llama/Llama-3.2-1B-Instruct',
-    'gemma': 'google/gemma-3-1b-it',
+    'gemma': 'google/gemma-2-2b-it',
     'mistral': 'mistralai/Ministral-8B-Instruct-2410',
     'deepseek' : 'deepseek-ai/DeepSeek-V2.5',
     'microsoft' : 'microsoft/Phi-4-mini-instruct'
