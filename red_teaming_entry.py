@@ -124,7 +124,7 @@ def evaluate_model(model, file_path, save_path, is_debate=False):
                 for round_idx, round_response in enumerate(agent_responses):
                     save_result_incrementally(
                         create_result_dict(i + 1, prompt, round_response),
-                        f'{save_path}agent{agent_idx}_round{round_idx}'
+                        f'{save_path}agent_{agent_idx}_round_{round_idx}.csv'
                     )
 
 def run_evaluation(evaluation_method='gcg'):
@@ -154,7 +154,7 @@ def main():
     # timestamp = time.time()
 
     # Handle different settings
-    if args.setting in [1, 2, 3, 4, 5]:  # Zero-shot
+    if args.setting in [1, 2, 3, 4]:  # Zero-shot
         model_key = SETTING_TO_MODEL[args.setting]
         model_path = MODEL_PATHS[model_key]
         save_path = f'./response/red_team/{args.setting}/zs_{model_key}.csv'
@@ -162,7 +162,7 @@ def main():
         model = BaseAgent(model_path)
         evaluate_model(model, file_path, save_path, is_debate=False)
 
-    elif args.setting in [6, 7, 8, 9, 10]:  # Non-diverse debate
+    elif args.setting in [5, 6, 7, 8]:  # Non-diverse debate
         model_key = SETTING_TO_MODEL[args.setting]
         model_path = MODEL_PATHS[model_key]
         save_path = f'./response/red_team/{args.setting}/'
