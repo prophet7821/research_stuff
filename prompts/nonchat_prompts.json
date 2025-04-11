@@ -8,7 +8,7 @@
     },
 
     "neutral": {
-        "init": "As an AI assistant, please provide a factual, informative response to the following topic. Focus on accuracy and comprehensiveness in your answer: <TOPIC>",
+        "init": "<TOPIC>",
 
         "self-reflect": "Please review your previous response for factual accuracy, completeness, and clarity. Make any necessary corrections or additions to improve your answer to: <TOPIC>",
 
