@@ -87,7 +87,7 @@ class BaseAgent(ModelWrapper):
 class DebateAgent(ModelWrapper):
     """Base class for debate between multiple agents"""
 
-    def __init__(self, agents, n_discussion_rounds=0):
+    def __init__(self, agents, n_discussion_rounds=2):
         """
         Initialize a debate among multiple agents
 
@@ -138,7 +138,7 @@ class DebateAgent(ModelWrapper):
 class NonDiverseDebateAgent(DebateAgent):
     """Debate among multiple instances of the same model"""
 
-    def __init__(self, model_name, n_agents=2, n_discussion_rounds=0):
+    def __init__(self, model_name, n_agents=2, n_discussion_rounds=2):
         """
         Initialize debate with multiple copies of the same model
 
@@ -152,7 +152,10 @@ class NonDiverseDebateAgent(DebateAgent):
             model_name = [model_name] * n_agents
 
         # Create agents, distributing across available GPUs
-        agents = [BaseAgent(model_name[i], device=f'cuda:{i}') for i in range(n_agents)]
+        agents = [
+            BaseAgent(model_name[0], device="cuda:0", intention="harmful"),
+            BaseAgent(model_name[1], device="cuda:1", intention="harmless")
+        ]
 
         super().__init__(agents, n_discussion_rounds)
 

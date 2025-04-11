@@ -5,7 +5,7 @@ import os
 import base64
 
 # Import local modules
-from agent import BaseAgent
+from agent import BaseAgent, NonDiverseDebateAgent
 from classifier import GCGClassifier, GPT4JudgeASR
 
 # Constants and configurations
@@ -45,10 +45,10 @@ def parse_args():
         9 = diverse,    Ministral-8B-Instruct / gemma-2-2b-it
     ''')
     parser.add_argument('--input_path', type=str, required=False,
-                        default='./data/red_teams.txt',
+                        default='./data/red_teams_smaller.txt',
                         help='Path to red teaming prompts file')
-    parser.add_argument('-a', '--n_agents', type=int, required=False,
-                        help='Count of agents to use for nondiverse debate')
+    # parser.add_argument('-a', '--n_agents', type=int, required=False,
+    #                     help='Count of agents to use for nondiverse debate')
     parser.add_argument('-r', '--n_rounds', type=int, required=False,
                         help='Count of rounds to use for debate')
     parser.add_argument('-e', '--evaluate', action='store_true',
@@ -124,7 +124,7 @@ def evaluate_model(model, file_path, save_path, is_debate=False):
                 for round_idx, round_response in enumerate(agent_responses):
                     save_result_incrementally(
                         create_result_dict(i + 1, prompt, round_response),
-                        f'{save_path}_agent{agent_idx}_round{round_idx}'
+                        f'{save_path}agent{agent_idx}_round{round_idx}'
                     )
 
 def run_evaluation(evaluation_method='gcg'):
@@ -162,18 +162,18 @@ def main():
         model = BaseAgent(model_path)
         evaluate_model(model, file_path, save_path, is_debate=False)
 
-    # elif args.setting in [4, 5, 6]:  # Non-diverse debate
-    #     model_key = SETTING_TO_MODEL[args.setting]
-    #     model_path = MODEL_PATHS[model_key]
-    #     save_path = f'./responses/nd_{model_key}_{timestamp}'
-    #
-    #     model = nondiverse_debate_agent(
-    #         model_path,
-    #         n_agents=args.n_agents,
-    #         n_discussion_rounds=args.n_rounds
-    #     )
-    #     evaluate_model(model, file_path, save_path, is_debate=True)
-    #
+    elif args.setting in [6, 7, 8, 9, 10]:  # Non-diverse debate
+        model_key = SETTING_TO_MODEL[args.setting]
+        model_path = MODEL_PATHS[model_key]
+        save_path = f'./response/red_team/{args.setting}/'
+
+        model = NonDiverseDebateAgent(
+            model_path,
+            # n_agents=args.n_agents,
+            n_discussion_rounds=args.n_rounds
+        )
+        evaluate_model(model, file_path, save_path, is_debate=True)
+
     # else:  # Diverse debate (7-8)
     #     pair_info = {
     #         7: ('mistral', 'llama'),
