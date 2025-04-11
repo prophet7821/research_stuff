@@ -36,7 +36,7 @@ class BaseAgent(ModelWrapper):
         self.device = device
 
         # Load prompt templates based on intention and model type
-        prompt_file = './prompts/base_prompts.json' if is_chat else './prompts/nonchat_prompts.json'
+        prompt_file = './prompts/nonchat_prompts.json'
         self.prompts = json.load(open(prompt_file, "r"))[intention]
 
         print(f"Using model {model_name} with intention {intention} on device {device}")
