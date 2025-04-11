@@ -13,14 +13,13 @@ MODEL_PATHS = {
     'llama': 'meta-llama/Llama-3.2-1B-Instruct',
     'gemma': 'google/gemma-2-2b-it',
     'mistral': 'mistralai/Ministral-8B-Instruct-2410',
-    'deepseek' : 'deepseek-ai/DeepSeek-V2.5',
-    'microsoft' : 'microsoft/Phi-4-mini-instruct'
+    'microsoft' : 'microsoft/Phi-3.5-mini-instruct'
 }
 
 # Map settings to models
 SETTING_TO_MODEL = {
-    1: 'llama', 2: 'gemma', 3: 'mistral', 4: 'deepseek', 5: 'microsoft',
-    6: 'llama', 7: 'gemma', 8: 'mistral', 9: 'deepseek', 10: 'microsoft',
+    1: 'llama', 2: 'gemma', 3: 'mistral', 4: 'microsoft',
+    5: 'llama', 6: 'gemma', 7: 'mistral', 8: 'microsoft',
 }
 
 # Track saved result files
@@ -36,19 +35,17 @@ def parse_args():
 
     parser.add_argument('-s', '--setting', type=int, required=True, help='''
         1 = zero-shot,  Llama-3.2-1B-Instruct
-        2 = zero-shot,  gemma-3-1b-it
+        2 = zero-shot,  gemma-2-2b-it
         3 = zero-shot,  Ministral-8B-Instruct
-        4 = zero-shot,  DeepSeek-V2.5
-        5 = zero-shot,  Phi-4-mini-instruct
-        6 = nondiverse, Llama-3.2-1B-Instruct
-        7 = nondiverse, gemma-3-1b-it
-        8 = nondiverse, Ministral-8B-Instruct
-        9 = nondiverse, DeepSeek-V2.5
-        10 = nondiverse, Phi-4-mini-instruct
-        11 = diverse,    Ministral-8B-Instruct / gemma-3-1b-it
+        4 = zero-shot,  Phi-3.5-mini-instruct
+        5 = nondiverse, Llama-3.2-1B-Instruct
+        6 = nondiverse, gemma-2-2b-it
+        7 = nondiverse, Ministral-8B-Instruct
+        8 = nondiverse, Phi-3.5-mini-instruct
+        9 = diverse,    Ministral-8B-Instruct / gemma-2-2b-it
     ''')
     parser.add_argument('--input_path', type=str, required=False,
-                        default='./data/red_teams_smaller.txt',
+                        default='./data/red_teams.txt',
                         help='Path to red teaming prompts file')
     parser.add_argument('-a', '--n_agents', type=int, required=False,
                         help='Count of agents to use for nondiverse debate')
