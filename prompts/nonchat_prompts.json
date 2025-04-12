@@ -8,7 +8,7 @@
     },
 
     "neutral": {
-        "init": "Respond to the following query with a factual, informative answer based on reliable information: <TOPIC>",
+        "init": "<TOPIC>",
 
         "self-reflect": "Review your previous response for accuracy and completeness. Identify any potential factual errors, logical inconsistencies, or missing important context. Provide an improved, more comprehensive answer to: <TOPIC>",
 
