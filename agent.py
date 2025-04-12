@@ -119,12 +119,15 @@ class DebateAgent(ModelWrapper):
                     if idx != i
                 ]
 
+                print(f'\n\n\{agent.intention}\n')
+
                 # Create discussion message with feedback
                 discussion_msg = agent.construct_discussion_message(initial_prompt, other_agents_feedback)
                 agent_contexts[i].append(discussion_msg)
 
                 # Generate updated response
                 response = agent.generate(agent_contexts[i])
+                print(f'\n\n{agent.intention}\n{agent_contexts[i]}\n{response}\n')
                 agent_contexts[i].append(agent.construct_assistant_message(response))
 
         # Format results: extract all agent responses by round

@@ -5,7 +5,7 @@ import os
 import base64
 
 # Import local modules
-from agent import BaseAgent, NonDiverseDebateAgent
+from agent import BaseAgent, NonDiverseDebateAgent, DiverseDebateAgent
 from classifier import GCGClassifier, GPT4JudgeASR
 
 # Constants and configurations
@@ -174,19 +174,23 @@ def main():
         )
         evaluate_model(model, file_path, save_path, is_debate=True)
 
-    # else:  # Diverse debate (7-8)
-    #     pair_info = {
-    #         7: ('mistral', 'llama'),
-    #         8: ('mistral', 'gemma')
-    #     }
-    #     model1_key, model2_key = pair_info[args.setting]
-    #     save_path = f'./responses/dd_{model1_key}_{model2_key}_{timestamp}'
-    #
-    #     model = diverse_debate_agent([
-    #         base_agent(MODEL_PATHS[model1_key], device="cuda:0"),
-    #         base_agent(MODEL_PATHS[model2_key], device="cuda:1")
-    #     ])
-    #     evaluate_model(model, file_path, save_path, is_debate=True)
+    else:  # Diverse debate (7-8)
+        pair_info = {
+            9: ('llama', 'gemma'),
+            10: ('gemma', 'mistral'),
+            11: ('mistral', 'microsoft'),
+        }
+        args = parse_args()
+        model1_key, model2_key = pair_info[args.setting]
+        save_path = f'./response/{args.setting}'
+
+        model = DiverseDebateAgent([
+            BaseAgent(MODEL_PATHS[model1_key], device="cuda:0", intention="harmful"),
+            BaseAgent(MODEL_PATHS[model2_key], device="cuda:1", intention="harmless")
+        ],
+            n_discussion_rounds=args.n_rounds
+        )
+        evaluate_model(model, file_path, save_path, is_debate=True)
 
     # Clean up model to free memory
     del model
