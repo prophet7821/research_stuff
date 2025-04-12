@@ -54,7 +54,7 @@ def parse_args():
     parser.add_argument('-e', '--evaluate', action='store_true',
                         help='Run evaluation after generation')
     parser.add_argument('--evaluation-method', type=str, choices=['gcg', 'gpt4', 'both'],
-                        default='gcg',
+                        default='gpt4',
                         help='Evaluation method to use')
 
     arg = parser.parse_args()
@@ -157,7 +157,7 @@ def main():
     if args.setting in [1, 2, 3, 4]:  # Zero-shot
         model_key = SETTING_TO_MODEL[args.setting]
         model_path = MODEL_PATHS[model_key]
-        save_path = f'./response/red_team/{args.setting}/zs_{model_key}.csv'
+        save_path = f'./response/{args.setting}/zs_{model_key}.csv'
 
         model = BaseAgent(model_path)
         evaluate_model(model, file_path, save_path, is_debate=False)
@@ -165,7 +165,7 @@ def main():
     elif args.setting in [5, 6, 7, 8]:  # Non-diverse debate
         model_key = SETTING_TO_MODEL[args.setting]
         model_path = MODEL_PATHS[model_key]
-        save_path = f'./response/red_team/{args.setting}/'
+        save_path = f'./response/{args.setting}/'
 
         model = NonDiverseDebateAgent(
             model_path,
