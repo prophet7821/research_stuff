@@ -182,7 +182,7 @@ def main():
         }
         args = parse_args()
         model1_key, model2_key = pair_info[args.setting]
-        save_path = f'./response/{args.setting}'
+        save_path = f'./response/{args.setting}/'
 
         model = DiverseDebateAgent([
             BaseAgent(MODEL_PATHS[model1_key], device="cuda:0", intention="harmful"),

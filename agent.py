@@ -119,8 +119,6 @@ class DebateAgent(ModelWrapper):
                     if idx != i
                 ]
 
-                print(f'\n\n\{agent.intention}\n')
-
                 # Create discussion message with feedback
                 discussion_msg = agent.construct_discussion_message(initial_prompt, other_agents_feedback)
                 agent_contexts[i].append(discussion_msg)
